@@ -2,10 +2,13 @@
 
 set -e
 
+# Get name of directory where this script is located
+# and cd into it
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 cd "${BASEDIR}"
-#git submodule update --init --recursive
+
+# Download all submodules 
+git submodule update --init --recursive
 
 # Create Python3 virtual env
 python3 -m venv .venv
