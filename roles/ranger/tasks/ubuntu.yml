@@ -1,0 +1,8 @@
+---
+- name: Install tmux with apt
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - ranger 
+    state: present
+  when: ansible_distribution == "Ubuntu"
