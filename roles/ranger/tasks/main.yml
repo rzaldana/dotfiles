@@ -1,0 +1,32 @@
+---
+- name: Install ranger on MacOS
+  import_tasks: macos.yml
+  when: ansible_distribution == "MacOSX"
+- name: Install ranger on Ubuntu
+  import_tasks: ubuntu.yml
+  when: ansible_distribution == "Ubuntu"
+- name: Find absolute path to ranger conf file 
+  find:
+    paths: "{{ role_path }}/files"
+    patterns: "rc.conf"
+  register: found_files
+- name: Ensure ranger config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/ranger"
+    state: directory
+    recurse: yes
+    mode: 0700
+- name: Symlink rc.conf file
+  file:
+    src: "{{ found_files.files[0].path }}" 
+    dest: "{{ ansible_env.HOME }}/.config/ranger/rc.conf" 
+    state: link
+- name: Add rn alias to bash profile
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME}}/.bash_profile"
+    block: |
+      # Ranger alias
+      alias rn='source ranger'
+    insertafter: EOF
+    create: yes
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - ranger"

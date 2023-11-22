@@ -3,6 +3,7 @@
   roles:
     - role: homebrew
     - role: tmux
+    - role: ranger
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"
@@ -14,4 +15,5 @@
           eval "$({{ homebrew_brew_bin_path }}/brew shellenv)"
         insertafter: EOF
         create: yes
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - homebrew"
   connection: local

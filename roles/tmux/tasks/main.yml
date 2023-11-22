@@ -5,7 +5,7 @@
 - name: Install tmux on Ubuntu
   import_tasks: ubuntu.yml
   when: ansible_distribution == "Ubuntu"
-- name: Found absolute path to tmux conf file 
+- name: Find absolute path to tmux conf file 
   find:
     paths: "{{ role_path }}/files"
     patterns: "tmux.conf"
@@ -13,5 +13,5 @@
 - name: Symlink tmux.conf file
   file:
     src: "{{ found_files.files[0].path }}" 
-    dest: .tmux.conf
+    dest: "{{ ansible_env.HOME }}/.tmux.conf"
     state: link
