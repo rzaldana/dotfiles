@@ -8,3 +8,6 @@
 [submodule "plugins/dotbot-ifplatform"]
 	path = plugins/dotbot-ifplatform
 	url = https://github.com/zaldanaraul/dotbot-ifplatform.git
+[submodule "ansible"]
+	path = ansible
+	url = https://github.com/ansible/ansible.git
