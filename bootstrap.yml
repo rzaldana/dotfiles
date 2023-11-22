@@ -1,0 +1,17 @@
+- name: Bootstrap development environment
+  hosts: localhost
+  roles:
+    - role: homebrew
+    - role: tmux
+  tasks:
+    - debug:
+        msg: "{{ homebrew_brew_bin_path }}"
+    - name: Add homebrew bin path location to .bash_profile
+      ansible.builtin.blockinfile:
+        path: "{{ ansible_env.HOME }}/.bash_profile"
+        block: |
+          # Load Homebrew environment variables
+          eval "$({{ homebrew_brew_bin_path }}/brew shellenv)"
+        insertafter: EOF
+        create: yes
+  connection: local
