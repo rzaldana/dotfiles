@@ -4,18 +4,18 @@
     - role: homebrew
     - role: tmux
     - role: ranger
+    - role: node
     - role: vim
       vim_plug_version: 0.11.0
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"
     - name: Add homebrew bin path location to .bash_profile
-      ansible.builtin.blockinfile:
-        path: "{{ ansible_env.HOME }}/.bash_profile"
-        block: |
+      include_role:
+        name: add_to_shell_profile
+      vars:
+        add_to_shell_profile_content: |
           # Load Homebrew environment variables
           eval "$({{ homebrew_brew_bin_path }}/brew shellenv)"
-        insertafter: EOF
-        create: yes
-        marker: "# {mark} ANSIBLE MANAGED BLOCK - homebrew"
+        add_to_shell_profile_mark: homebrew
   connection: local

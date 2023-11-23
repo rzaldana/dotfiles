@@ -1,0 +1,11 @@
+---
+- name: Write to bash_profile
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.bash_profile"
+    block: |
+      {{ add_to_shell_profile_content }}
+    insertafter: EOF
+    create: yes
+    marker: "######### {mark} ANSIBLE MANAGED BLOCK - {{ add_to_shell_profile_mark }}"
+  when: ansible_distribution == "MacOSX"
+  

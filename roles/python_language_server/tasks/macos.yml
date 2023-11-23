@@ -1,0 +1,6 @@
+---
+- name: Install python-language-server with Homebrew
+  homebrew:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: python-lsp-server
+    state: 'present'

@@ -1,0 +1,29 @@
+---
+- name: Install nvm with Homebrew
+  homebrew:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: nvm 
+    state: 'present'
+- name: Ensure nvm config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.nvm"
+    state: directory
+    recurse: yes
+    mode: '0700'
+- name: Add nvm sourcing to shell profile
+  include_role:
+    name: add_to_shell_profile
+  vars:
+    add_to_shell_profile_content: |
+      # set nvm dir to store node versions
+      export NVM_DIR="$HOME/.nvm"
+      # source nvm
+      [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
+      # source nvm bash_completion
+      [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+    add_to_shell_profile_mark: nvm
+- name: Install and configure default node version
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: |
+      source ~/.nvm/nvm.sh && nvm install {{ node_default_version }} && nvm alias default {{ node_default_version }}

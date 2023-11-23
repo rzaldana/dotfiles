@@ -1,0 +1,4 @@
+---
+- name: Install nvm on MacOSX
+  import_tasks: macos.yml
+  when: ansible_distribution == "MacOSX"

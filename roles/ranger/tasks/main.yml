@@ -22,11 +22,10 @@
     dest: "{{ ansible_env.HOME }}/.config/ranger/rc.conf" 
     state: link
 - name: Add rn alias to bash profile
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME}}/.bash_profile"
-    block: |
-      # Ranger alias
+  include_role:
+    name: add_to_shell_profile
+  vars:
+    add_to_shell_profile_content: |
+      # Ranger alias 
       alias rn='source ranger'
-    insertafter: EOF
-    create: yes
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - ranger"
+    add_to_shell_profile_mark: ranger
