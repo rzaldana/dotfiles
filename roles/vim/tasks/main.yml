@@ -1,0 +1,24 @@
+---
+- name: Find absolute path to vim conf file 
+  find:
+    paths: "{{ role_path }}/files"
+    patterns: "vimrc"
+  register: found_files
+- name: Symlink vimrc file
+  file:
+    src: "{{ found_files.files[0].path }}"
+    dest: "{{ ansible_env.HOME }}/.vimrc"
+    state: link
+- name: Ensure vim autoload directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.vim/autoload"
+    state: directory
+    recurse: yes
+    mode: 0700
+- name: Download vim-plug into autoload directory
+  ansible.builtin.get_url:
+    dest: "{{ ansible_env.HOME }}/.vim/autoload/plug.vim"
+    force: false
+    mode: '0700'
+    url: "https://raw.githubusercontent.com/junegunn/vim-plug/{{ vim_plug_version }}/plug.vim"
+

@@ -4,6 +4,8 @@
     - role: homebrew
     - role: tmux
     - role: ranger
+    - role: vim
+      vim_plug_version: 0.11.0
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"
