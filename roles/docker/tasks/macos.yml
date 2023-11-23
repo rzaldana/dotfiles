@@ -1,0 +1,6 @@
+---
+- name: Install Docker Desktop with Homebrew
+  community.general.homebrew_cask:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: docker 
+    state: 'present'
