@@ -6,5 +6,8 @@
       "filetypes": ["sh"],
       "ignoredRootPaths": ["~"]
     }
+  },
+  "diagnostic": {
+    "checkCurrentLine": true
   }
 }
