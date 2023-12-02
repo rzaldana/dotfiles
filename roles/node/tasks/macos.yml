@@ -12,7 +12,7 @@
     mode: '0700'
 - name: Add nvm sourcing to shell profile
   include_role:
-    name: add_to_shell_profile
+    name: add-to-shell-profile
   vars:
     add_to_shell_profile_content: |
       # set nvm dir to store node versions

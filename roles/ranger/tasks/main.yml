@@ -23,7 +23,7 @@
     state: link
 - name: Add rn alias to bash profile
   include_role:
-    name: add_to_shell_profile
+    name: add-to-shell-profile
   vars:
     add_to_shell_profile_content: |
       # Ranger alias 

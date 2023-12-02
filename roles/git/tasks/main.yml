@@ -1,0 +1,14 @@
+---
+- name: Install git-credential-oauth
+  include_role:
+    name: git-credential-oauth
+- name: Find absolute path to gitconfig file
+  find:
+    paths: "{{ role_path }}/files"
+    patterns: "gitconfig"
+  register: found_gitconfig_file
+- name: Symlink gitconfig file
+  file:
+    src: "{{ found_gitconfig_file.files[0].path }}"
+    dest: "{{ ansible_env.HOME }}/.gitconfig"
+    state: link

@@ -16,7 +16,10 @@
     name: shellcheck
 - name: Install bash-language-server
   include_role:
-    name: bash_language_server
+    name: bash-language-server
+- name: Install terraform language server
+  ansible.builtin.include_role:
+    name: terraform-ls
 - name: Find absolute path to vim conf file 
   find:
     paths: "{{ role_path }}/files"
@@ -48,4 +51,5 @@
     cmd: |
       vim -c ':CocInstall -sync {{ item }} | qall'
   loop:
-    - coc-pyright
+    - "coc-pyright"
+    - "@yaegassy/coc-ansible"

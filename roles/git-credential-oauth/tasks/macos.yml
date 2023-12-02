@@ -1,0 +1,6 @@
+---
+- name: Install git-credential-oauth with Homebrew
+  homebrew:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: git-credential-oauth 
+    state: 'present'

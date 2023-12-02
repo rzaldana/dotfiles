@@ -1,6 +1,6 @@
 ---
 - name: Install bash-language-server with Homebrew
-  homebrew:
+  community.general.homebrew:
     path: "{{ homebrew_brew_bin_path }}"
     name: bash-language-server
     state: 'present'

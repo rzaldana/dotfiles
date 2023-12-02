@@ -1,0 +1,6 @@
+---
+- name: Install ansible with Homebrew
+  homebrew:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: ansible 
+    state: 'present'

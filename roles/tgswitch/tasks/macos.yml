@@ -1,0 +1,6 @@
+---
+- name: Install tgswitch with Homebrew
+  homebrew:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: warrensbox/tap/tgswitch
+    state: 'present'

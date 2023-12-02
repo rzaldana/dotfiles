@@ -5,15 +5,19 @@
     - role: tmux
     - role: ranger
     - role: node
+    - role: ansible
     - role: vim
       vim_plug_version: 0.11.0
     - role: docker
+    - role: git
+    - role: tfenv
+    - role: tgswitch
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"
     - name: Add homebrew bin path location to .bash_profile
       include_role:
-        name: add_to_shell_profile
+        name: add-to-shell-profile
       vars:
         add_to_shell_profile_content: |
           # Load Homebrew environment variables

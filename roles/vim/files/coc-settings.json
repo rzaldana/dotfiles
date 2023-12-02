@@ -5,9 +5,19 @@
       "args": ["start"],
       "filetypes": ["sh"],
       "ignoredRootPaths": ["~"]
+    },
+    "terraform": {
+      "command": "terraform-ls",
+      "args": ["serve"],
+      "filetypes": [
+        "terraform",
+	"tf"
+      ],
+      "initializationOptions": {},
+      "settings": {} 
     }
   },
   "diagnostic": {
-    "checkCurrentLine": true
+    "checkCurrentLine": false
   }
 }
