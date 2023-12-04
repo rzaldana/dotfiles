@@ -13,6 +13,7 @@
     - role: tfenv
     - role: tgswitch
     - role: iterm2
+    - role: gettext
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"

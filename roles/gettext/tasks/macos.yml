@@ -1,0 +1,6 @@
+---
+- name: Install gettext with Homebrew
+  homebrew:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: gettext 
+    state: 'present'
