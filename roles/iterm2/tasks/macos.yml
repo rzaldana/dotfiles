@@ -1,0 +1,6 @@
+---
+- name: Install iTerm2 with Homebrew
+  community.general.homebrew_cask:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: iterm2 
+    state: 'present'

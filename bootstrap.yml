@@ -12,6 +12,7 @@
     - role: git
     - role: tfenv
     - role: tgswitch
+    - role: iterm2
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"
