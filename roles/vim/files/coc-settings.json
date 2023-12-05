@@ -19,5 +19,13 @@
   },
   "diagnostic": {
     "checkCurrentLine": false
+  },
+  "pyright": {
+    "enable": true,
+    "inlayHints": {
+      "functionReturnTypes": false,
+      "variableTypes": false,
+      "parameterTypes": false
+    }
   }
 }

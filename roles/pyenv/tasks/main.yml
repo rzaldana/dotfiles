@@ -1,0 +1,14 @@
+---
+- name: Install pyenv on MacOS
+  import_tasks: macos.yml
+  when: ansible_distribution == "MacOSX"
+- name: Add pyenv comamnds to bash profile
+  include_role:
+    name: add-to-shell-profile
+  vars:
+    add_to_shell_profile_content: |
+      export PYENV_ROOT="$HOME/.pyenv"
+      command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init -)"
+    add_to_shell_profile_mark: pyenv
+
