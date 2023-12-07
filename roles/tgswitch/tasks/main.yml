@@ -2,3 +2,10 @@
 - name: Install tgswitch on MacOSX
   import_tasks: macos.yml
   when: ansible_distribution == "MacOSX"
+- name: Add /Users/$(whoami)/bin to path
+  include_role:
+    name: add-to-shell-profile
+  vars:
+    add_to_shell_profile_content: |
+      export PATH="/Users/$(whoami)/bin:$PATH"
+    add_to_shell_profile_mark: tgswitch
