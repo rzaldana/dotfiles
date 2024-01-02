@@ -55,5 +55,5 @@ let g:netrw_browse_split = 4
 " Open netrw in a vertical split when opening vim
 augroup ProjectDrawer
   autocmd!
-  autocmd VimEnter * :Vexplore
+  autocmd VimEnter * :Vexplore | wincmd p
 augroup END
