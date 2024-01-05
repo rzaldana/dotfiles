@@ -10,12 +10,19 @@
       "command": "terraform-ls",
       "args": ["serve"],
       "filetypes": [
-        "terraform",
-	"tf"
+        "terraform", "tf"
       ],
       "initializationOptions": {},
       "settings": {} 
-    }
+    },
+    "go": {
+      "command": "gopls",
+      "rootPatterns": ["go.work", "go.mod", ".vim/", ".git/", ".hg/"],
+      "filetypes": ["go"],
+      "initializationOptions": {
+        "usePlaceholders": true
+      }
+  }
   },
   "diagnostic": {
     "checkCurrentLine": true
@@ -26,14 +33,6 @@
       "functionReturnTypes": false,
       "variableTypes": false,
       "parameterTypes": false
-    }
-  },
-  "go": {
-    "command": "gopls",
-    "rootPatterns": ["go.work", "go.mod", ".vim/", ".git/", ".hg/"],
-    "filetypes": ["go"],
-    "initializationOptions": {
-      "usePlaceholders": true
     }
   }
 }
