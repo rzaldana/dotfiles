@@ -18,6 +18,7 @@
     - role: gettext
     - role: pyenv
     - role: golang
+    - role: gopls
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"

@@ -27,5 +27,13 @@
       "variableTypes": false,
       "parameterTypes": false
     }
+  },
+  "go": {
+    "command": "gopls",
+    "rootPatterns": ["go.work", "go.mod", ".vim/", ".git/", ".hg/"],
+    "filetypes": ["go"],
+    "initializationOptions": {
+      "usePlaceholders": true
+    }
   }
 }
