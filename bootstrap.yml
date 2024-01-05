@@ -2,6 +2,8 @@
   hosts: localhost
   roles:
     - role: homebrew
+      homebrew_taps:
+        - hashicorp/tap
     - role: tmux
     - role: ranger
     - role: node
@@ -15,6 +17,7 @@
     - role: iterm2
     - role: gettext
     - role: pyenv
+    - role: golang
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"
