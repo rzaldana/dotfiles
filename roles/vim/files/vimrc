@@ -3,6 +3,11 @@ set number					" show line numbers
 set relativenumber				" show line numbers relative to current line
 set hidden
 
+" tab should insert two spaces
+set expandtab
+set tabstop=2
+set shiftwidth=2
+
 " turn off vi 'compatible' mode
 set nocompatible
 
