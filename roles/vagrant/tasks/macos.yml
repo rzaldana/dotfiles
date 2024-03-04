@@ -1,6 +1,6 @@
 ---
-- name: Install golang with Homebrew
+- name: Install vagrant with Homebrew
   community.general.homebrew:
     path: "{{ homebrew_brew_bin_path }}"
-    name: go 
+    name: hashicorp-vagrant 
     state: 'present'

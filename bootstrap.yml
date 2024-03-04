@@ -4,6 +4,7 @@
     - role: homebrew
       homebrew_taps:
         - hashicorp/tap
+    - role: bash
     - role: tmux
     - role: ranger
     - role: node
@@ -19,6 +20,7 @@
     - role: pyenv
     - role: golang
     - role: gopls
+    - role: vagrant
   tasks:
     - debug:
         msg: "{{ homebrew_brew_bin_path }}"

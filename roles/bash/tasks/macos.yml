@@ -1,0 +1,17 @@
+---
+- name: Install bash using Homebrew
+  community.general.homebrew:
+    path: "{{ homebrew_brew_bin_path }}"
+    name: bash 
+    state: present
+      # From: https://stackoverflow.com/a/59700987
+      #- name: Make bash the default shell for the current user
+      #become: no
+      #vars:
+      #user: "{{ ansible_user_id }}"
+      #tasks:
+      #- name: change the user's shell to bash 
+      #become: yes
+      #user:
+      #name: "{{ user }}"
+      #  shell: "{{ homebrew_brew_bin_path }}/bash"
