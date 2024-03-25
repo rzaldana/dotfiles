@@ -1,6 +1,6 @@
 ---
 - name: Get Homebrew path
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: brew --prefix  
   register: homebrew_prefix
 - name: Install bash using Homebrew
@@ -8,13 +8,17 @@
     name: bash 
     state: present
 - name: Get name of user running the Ansible playbook 
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: whoami
   register: non_root_user 
+- name: Print homebrew prefix
+  debug:
+    msg: "{{ homebrew_prefix.stdout }}"
 - name: Print name of user running the Ansible playbook
-    msg: "{{ homebrew_prefix }}"
-#- name: Make bash the default shell for the user running the playbook 
-#  become: yes
-#  user:
-#    name: "{{ non_root_user }}"
-#    shell: "{{ homebrew_prefix }}/bin/bash"
+  debug:
+    msg: "{{ non_root_user.stdout }}"
+- name: Make bash the default shell for the user running the playbook 
+  become: yes
+  user:
+    name: "{{ non_root_user.stdout }}"
+    shell: "{{ homebrew_prefix.stdout }}/bin/bash"
