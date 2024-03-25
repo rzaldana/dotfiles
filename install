@@ -24,3 +24,6 @@ ansible --version
 
 # Run bootstrap playbook
 ansible-playbook bootstrap.yml --ask-become-pass
+
+# Install Homebrew
+#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"

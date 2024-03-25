@@ -1,42 +1,39 @@
 - name: Bootstrap development environment
   hosts: localhost
   roles:
-    - role: homebrew
-      homebrew_taps:
-        - hashicorp/tap
     - role: bash
-    - role: tmux
-    - role: ranger
-    - role: node
-    - role: ansible
-    - role: vim
-      vim_plug_version: 0.11.0
-    - role: docker
-    - role: git
-    - role: tfenv
-    - role: tgswitch
-    - role: iterm2
-    - role: gettext
-    - role: pyenv
-    - role: golang
-    - role: gopls
-    - role: vagrant
-  tasks:
-    - debug:
-        msg: "{{ homebrew_brew_bin_path }}"
-    - name: Add homebrew bin path location to .bash_profile
-      include_role:
-        name: add-to-shell-profile
-      vars:
-        add_to_shell_profile_content: |
-          # Load Homebrew environment variables
-          eval "$({{ homebrew_brew_bin_path }}/brew shellenv)"
-        add_to_shell_profile_mark: homebrew
-    - name: add git-repos path to .bash_profile
-      include_role:
-        name: add-to-shell-profile
-      vars:
-        add_to_shell_profile_content: |
-          alias git-repos='cd ~/Documents/git-repos'
-        add_to_shell_profile_mark: git-repos
+    #- role: tmux
+    #- role: ranger
+    #- role: node
+    #- role: ansible
+    #- role: vim
+    #  vim_plug_version: 0.11.0
+    #- role: docker
+    #- role: git
+    #- role: tfenv
+    #- role: tgswitch
+    #- role: iterm2
+    #- role: gettext
+    #- role: pyenv
+    #- role: golang
+    #- role: gopls
+    #- role: vagrant
+  #tasks:
+    #- debug:
+    #    msg: "{{ homebrew_brew_bin_path }}"
+    #- name: Add homebrew bin path location to .bash_profile
+    #  include_role:
+    #    name: add-to-shell-profile
+    #  vars:
+    #    add_to_shell_profile_content: |
+    #      # Load Homebrew environment variables
+    #      eval "$({{ homebrew_brew_bin_path }}/brew shellenv)"
+    #    add_to_shell_profile_mark: homebrew
+    #- name: add git-repos path to .bash_profile
+    #  include_role:
+    #    name: add-to-shell-profile
+    #  vars:
+    #    add_to_shell_profile_content: |
+    #      alias git-repos='cd ~/Documents/git-repos'
+    #    add_to_shell_profile_mark: git-repos
   connection: local
