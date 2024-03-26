@@ -1,5 +1,5 @@
 ---
-- name: Write to bash_profile
+- name: Write to bash_profile on MacOS
   ansible.builtin.blockinfile:
     path: "{{ ansible_env.HOME }}/.bash_profile"
     block: |
@@ -8,4 +8,13 @@
     create: yes
     marker: "######### {mark} ANSIBLE MANAGED BLOCK - {{ add_to_shell_profile_mark }}"
   when: ansible_distribution == "MacOSX"
-  
+- name: Write to .bashrc on Ubuntu
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    block: |
+      {{ add_to_shell_profile_content }}
+    insertafter: EOF
+    create: yes
+    marker: "######### {mark} ANSIBLE MANAGED BLOCK - {{ add_to_shell_profile_mark }}"
+  when: ansible_distribution == "Ubuntu"
+

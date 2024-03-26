@@ -1,6 +1,0 @@
----
-- name: Install tfenv with Homebrew
-  homebrew:
-    path: "{{ homebrew_brew_bin_path }}"
-    name: tfenv 
-    state: 'present'

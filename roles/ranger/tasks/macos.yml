@@ -1,6 +1,0 @@
----
-- name: Install tmux with Homebrew
-  homebrew:
-    path: "{{ homebrew_brew_bin_path }}"
-    name: ranger 
-    state: 'present'

@@ -1,5 +1,0 @@
-[credential]
-	helper = cache --timeout 7200 # two hours
-	helper = oauth
-[credential "https://gitlab.irdeto.com"]
-	oauthClientId = 39c1436bde474c5acabafdc057bf9b4f286d784d345c54efc630e8f0e503da92

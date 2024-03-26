@@ -1,6 +1,0 @@
----
-- name: Install golang with Homebrew
-  community.general.homebrew:
-    path: "{{ homebrew_brew_bin_path }}"
-    name: go 
-    state: 'present'

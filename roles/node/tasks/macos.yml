@@ -1,9 +1,4 @@
 ---
-- name: Install nvm with Homebrew
-  homebrew:
-    path: "{{ homebrew_brew_bin_path }}"
-    name: nvm 
-    state: 'present'
 - name: Ensure nvm config directory exists
   file:
     path: "{{ ansible_env.HOME }}/.nvm"

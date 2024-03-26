@@ -1,0 +1,4 @@
+---
+symlink_to_home_origin_path: "{{ playbook_dir }}/config-files"
+symlink_to_home_destination_path: "{{ ansible_env.HOME }}"
+

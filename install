@@ -11,7 +11,9 @@ cd "${BASEDIR}"
 git submodule update --init --recursive
 
 # Create Python3 virtual env
-python3 -m venv .venv
+if ! [[ -d .venv ]]; then
+  python3 -m venv .venv
+fi
 
 # Activate virtual env
 . .venv/bin/activate
@@ -23,7 +25,7 @@ python3 -m pip install -r requirements.txt
 ansible --version
 
 # Run bootstrap playbook
-ansible-playbook bootstrap.yml --ask-become-pass
+ansible-playbook bootstrap.yml
 
 # Install Homebrew
 #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"

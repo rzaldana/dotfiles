@@ -1,4 +1,0 @@
----
-- name: Install homebrew pre-requisites on Debian/Ubuntu
-  import_tasks: debian_ubuntu.yml
-  when: ansible_distribution == "Debian" or ansible_distribution == 'Ubuntu'

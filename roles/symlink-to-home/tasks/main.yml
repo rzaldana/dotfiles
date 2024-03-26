@@ -1,0 +1,19 @@
+---
+- name: Find absolute path to files 
+  ansible.builtin.find:
+    paths: "{{ symlink_to_home_origin_path }}" 
+    patterns: "^{{ item | replace('.', '\\.') }}$"
+    recurse: "no"
+    file_type: "file" 
+    use_regex: "true"
+    hidden: "true"
+  register: symlink_to_home_origin_paths 
+  loop: "{{ symlink_to_home_files }}"
+- name: Symlink origin files to current user's home
+  ansible.builtin.file:
+    src: "{{ item.files[0].path }}"
+    dest: "{{ symlink_to_home_destination_path }}/{{ symlink_to_home_files[index] }}"
+    state: "link"
+  loop: "{{ symlink_to_home_origin_paths.results }}"
+  loop_control:
+    index_var: index

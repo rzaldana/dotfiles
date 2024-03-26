@@ -1,4 +1,0 @@
----
-- name: Install terraform-ls on MacOSX
-  import_tasks: macos.yml
-  when: ansible_distribution == "MacOSX"

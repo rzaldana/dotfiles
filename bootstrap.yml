@@ -1,39 +1,111 @@
 - name: Bootstrap development environment
   hosts: localhost
-  roles:
-    - role: bash
-    #- role: tmux
-    #- role: ranger
-    #- role: node
-    #- role: ansible
-    #- role: vim
-    #  vim_plug_version: 0.11.0
-    #- role: docker
-    #- role: git
-    #- role: tfenv
-    #- role: tgswitch
-    #- role: iterm2
-    #- role: gettext
-    #- role: pyenv
-    #- role: golang
-    #- role: gopls
-    #- role: vagrant
-  #tasks:
-    #- debug:
-    #    msg: "{{ homebrew_brew_bin_path }}"
-    #- name: Add homebrew bin path location to .bash_profile
-    #  include_role:
-    #    name: add-to-shell-profile
-    #  vars:
-    #    add_to_shell_profile_content: |
-    #      # Load Homebrew environment variables
-    #      eval "$({{ homebrew_brew_bin_path }}/brew shellenv)"
-    #    add_to_shell_profile_mark: homebrew
-    #- name: add git-repos path to .bash_profile
-    #  include_role:
-    #    name: add-to-shell-profile
-    #  vars:
-    #    add_to_shell_profile_content: |
-    #      alias git-repos='cd ~/Documents/git-repos'
-    #    add_to_shell_profile_mark: git-repos
+  vars:
+    node_version: node # This will install the latest version
+    vim_plug_version: "0.11.0"
+  tasks:
+    - name: Create symlinks from config files to home dir  
+      include_role:
+        name: symlink-to-home
+      vars:
+        symlink_to_home_destination_path: "{{ ansible_env.HOME }}"
+        symlink_to_home_files:
+          - ".tmux.conf"
+          - ".gitconfig" 
+          - ".vimrc"
+    - name: Ensure config subdirectories exist in home directory
+      file:
+        path: "{{ ansible_env.HOME }}/{{ item }}"
+        state: directory
+        recurse: yes
+        mode: 0700
+      loop:
+        - .vim/autoload 
+        - .nvm
+        - .config/ranger
+    - name: Create symlink to coc-settings.json
+      include_role:
+        name: symlink-to-home
+      vars:
+        symlink_to_home_destination_path: "{{ ansible_env.HOME }}/.vim"
+        symlink_to_home_files:
+          - "coc-settings.json"
+    - name: Create symlink to ranger config file 
+      include_role:
+        name: symlink-to-home
+      vars:
+        symlink_to_home_destination_path: "{{ ansible_env.HOME }}/.config/ranger"
+        symlink_to_home_files:
+          - "rc.conf"
+    - name: Install Homebrew packages
+      community.general.homebrew:
+        state: "present"
+        name:
+          - tmux
+          - ranger
+          - nvm
+          - tfenv
+          - ansible
+          - go
+          - pyenv
+          - git-credential-oauth
+          - gettext
+          - shellcheck
+          - terraform-ls
+          - gopls
+          - bash-language-server
+          - vim
+    - name: Add nvm sourcing to shell profile
+      include_role:
+        name: add-to-shell-profile
+      vars:
+        add_to_shell_profile_content: |
+          # set nvm dir to store node versions
+          export NVM_DIR="$HOME/.nvm"
+          # source nvm
+          [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
+          # source nvm bash_completion
+          [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+        add_to_shell_profile_mark: nvm
+    - name: Install and configure default node version
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          source ~/.nvm/nvm.sh && nvm install {{ node_version }} && nvm alias default {{ node_version }}
+    - name: Download vim-plug into autoload directory
+      ansible.builtin.get_url:
+        dest: "{{ ansible_env.HOME }}/.vim/autoload/plug.vim"
+        force: false
+        mode: '0700'
+        url: "https://raw.githubusercontent.com/junegunn/vim-plug/{{ vim_plug_version }}/plug.vim"
+    - name: Install all vim plugins specified in vimrc
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          vim -c ':PlugInstall' -c ':qall'
+    - name: Install coc extensions
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          vim -c ':CocInstall -sync {{ item }} | qall'
+      loop:
+        - "coc-pyright"
+        - "@yaegassy/coc-ansible"
+    - name: Add pyenv comamnds to bash profile
+      include_role:
+        name: add-to-shell-profile
+      vars:
+        add_to_shell_profile_content: |
+          export PYENV_ROOT="$HOME/.pyenv"
+          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+          eval "$(pyenv init -)"
+        add_to_shell_profile_mark: pyenv
+    - name: Add rn alias to bash profile
+      include_role:
+        name: add-to-shell-profile
+      vars:
+        add_to_shell_profile_content: |
+          # Ranger alias 
+          alias rn='source ranger'
+        add_to_shell_profile_mark: ranger
   connection: local
