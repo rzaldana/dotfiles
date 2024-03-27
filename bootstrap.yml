@@ -40,7 +40,9 @@
     - name: Install Homebrew packages
       community.general.homebrew:
         state: "present"
-        name:
+        name: "{{ item }}"
+      loop:
+          - git
           - tmux
           - ranger
           - nvm
@@ -55,6 +57,7 @@
           - gopls
           - bash-language-server
           - vim
+          - awscli
     - name: Add nvm sourcing to shell profile
       include_role:
         name: add-to-shell-profile
