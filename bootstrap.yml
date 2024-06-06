@@ -58,6 +58,7 @@
           - bash-language-server
           - vim
           - awscli
+          - openjdk 
     - name: Add nvm sourcing to shell profile
       include_role:
         name: add-to-shell-profile
@@ -70,6 +71,21 @@
           # source nvm bash_completion
           [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
         add_to_shell_profile_mark: nvm
+    - name: Create jars directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/jars"
+        state: directory
+    - name: Build Groovy LSP 
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          cd ./submodules/groovy-language-server
+          # Nee
+          JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk" ./gradlew build
+    - name: Move Groovy LSP jar to jars directory
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/submodules/groovy-language-server/build/libs/groovy-language-server-all.jar"
+        dest: "{{ ansible_env.HOME }}/jars/groovy-language-server-all.jar"
     - name: Install and configure default node version
       ansible.builtin.shell:
         executable: /bin/bash

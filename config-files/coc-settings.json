@@ -22,7 +22,17 @@
       "initializationOptions": {
         "usePlaceholders": true
       }
-  }
+    },
+    "groovy": {
+      "command": "$HOMEBREW_PREFIX/opt/openjdk/bin/java",
+      "args": ["-jar", "~/jars/groovy-language-server-all.jar"],
+      "filetypes": [
+        "groovy"
+      ],
+      "initializationOptions": {},
+      "settings": {},
+      "shell": true
+    }
   },
   "diagnostic": {
     "checkCurrentLine": true
@@ -34,5 +44,5 @@
       "variableTypes": false,
       "parameterTypes": false
     }
-  }
+  },
 }

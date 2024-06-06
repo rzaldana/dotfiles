@@ -1,3 +1,6 @@
 [submodule "submodules/ansible-collection-mac"]
 	path = submodules/ansible-collection-mac
 	url = https://github.com/geerlingguy/ansible-collection-mac.git
+[submodule "submodules/groovy-language-server"]
+	path = submodules/groovy-language-server
+	url = https://github.com/GroovyLanguageServer/groovy-language-server.git
