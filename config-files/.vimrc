@@ -11,6 +11,9 @@ set shiftwidth=2
 " turn off vi 'compatible' mode
 set nocompatible
 
+" enable backspacing at beginning of line
+set backspace=indent,eol,start
+
 " netrw configuration
 set nocp
 filetype plugin on
