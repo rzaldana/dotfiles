@@ -28,7 +28,7 @@ nnoremap <esc><esc> :nohlsearch<return><esc>	" map <esc><esc> to disable search 
 colorscheme elflord
 
 " use unnamed register for clipboard data
-set clipboard=unnamed
+set clipboard=unnamedplus
 
 " vim.plug configuration
 call plug#begin()
