@@ -2,9 +2,11 @@
 	helper = !aws codecommit credential-helper $@
 	UseHttpPath = true
 [credential]
-  #helper = cache --timeout 7200 # two hours
+  helper = cache --timeout 7200 # two hours
   helper = osxkeychain
   helper = oauth
 [user]
 	name = Raul Zaldana
 	email = rzaldana@ci.com
+[init]
+	defaultBranch = main

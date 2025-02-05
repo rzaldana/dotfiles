@@ -61,7 +61,7 @@ let g:netrw_banner = 0
 " open files in previous window
 let g:netrw_browse_split = 4
 " Open netrw in a vertical split when opening vim
-augroup ProjectDrawer
-  autocmd!
-  autocmd VimEnter * :Vexplore | wincmd p
-augroup END
+"augroup ProjectDrawer
+"  autocmd!
+"  autocmd VimEnter * :Vexplore | wincmd p
+"augroup END
