@@ -89,6 +89,14 @@
           # Shortcut for listing files and dirs
           alias ll='ls -la'
         add_to_shell_profile_mark: aliases
+    - name: Add direnv loading to shell profile
+      include_role:
+        name: add-to-shell-profile
+      vars:
+        add_to_shell_profile_mark: direnv
+        add_to_shell_profile_content: |
+          # Load direnv
+          eval "$(direnv hook bash)"
     #- name: Create jars directory
     #  ansible.builtin.file:
     #    path: "{{ ansible_env.HOME }}/jars"
