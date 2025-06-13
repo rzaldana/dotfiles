@@ -61,6 +61,7 @@
           - awscli
           - openjdk 
           - krew
+          - direnv
     - name: Add krew plugins to shell profile
       include_role:
         name: add-to-shell-profile
