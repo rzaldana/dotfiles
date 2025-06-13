@@ -62,6 +62,7 @@
           - openjdk 
           - krew
           - direnv
+          - ffmpeg
     - name: Add krew plugins to shell profile
       include_role:
         name: add-to-shell-profile
@@ -97,6 +98,14 @@
         add_to_shell_profile_content: |
           # Load direnv
           eval "$(direnv hook bash)"
+    - name: Set EDITOR variable to 'vim' in shell profile 
+      include_role:
+        name: add-to-shell-profile
+      vars:
+        add_to_shell_profile_mark: editor-env-var
+        add_to_shell_profile_content: |
+          # Set EDITOR env var to 'vim' 
+          export EDITOR='vim'
     #- name: Create jars directory
     #  ansible.builtin.file:
     #    path: "{{ ansible_env.HOME }}/jars"
