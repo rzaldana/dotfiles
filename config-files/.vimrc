@@ -3,6 +3,12 @@ set number					" show line numbers
 set relativenumber				" show line numbers relative to current line
 set hidden
 
+" set foldmethod to indent
+set foldmethod=indent
+
+" open all files with a nesting level (foldlevel) higher than 100
+set foldlevel=100
+
 " tab should insert two spaces
 set expandtab
 set tabstop=2
