@@ -4,3 +4,10 @@
 [submodule "submodules/groovy-language-server"]
 	path = submodules/groovy-language-server
 	url = https://github.com/GroovyLanguageServer/groovy-language-server.git
+[submodule "dotbot"]
+	path = dotbot
+	url = https://github.com/anishathalye/dotbot
+	ignore = dirty
+[submodule "submodules/vim-plug"]
+	path = submodules/vim-plug
+	url = https://github.com/junegunn/vim-plug.git
