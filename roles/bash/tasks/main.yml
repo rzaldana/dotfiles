@@ -1,4 +1,0 @@
----
-- name: Install bash and make it the default shell for the current user on MacOS 
-  import_tasks: macos.yml
-  when: ansible_distribution == "MacOSX"
