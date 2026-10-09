@@ -1,0 +1,24 @@
+- defaults:
+    link:
+      relink: true
+
+- clean: ['~']
+
+- link:
+    ~/.bash_aliases:
+    ~/.bash_profile:
+    ~/.bashrc:
+    ~/.bashrc.d:
+      create: true
+      path: bashrc.d/*
+      glob: true
+    ~/bin:
+      create: true
+      path: bin/*
+      glob: true
+    ~/.gitconfig:
+    ~/.tmux.conf:
+    ~/.vimrc:
+    ~/.config/ranger/rc.conf: rc.conf
+    ~/.vim/autoload/plug.vim: ./submodules/vim-plug/plug.vim
+    ~/.vim/coc-settings.json:

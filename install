@@ -2,30 +2,14 @@
 
 set -e
 
-# Get name of directory where this script is located
-# and cd into it
+CONFIG="install.conf.yaml"
+DOTBOT_DIR="dotbot"
+
+DOTBOT_BIN="bin/dotbot"
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 cd "${BASEDIR}"
+git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
+git submodule update --init --recursive "${DOTBOT_DIR}"
 
-# Download all submodules 
-git submodule update --init --recursive
-
-# Create Python3 virtual env
-if ! [[ -d .venv ]]; then
-  python3 -m venv .venv
-fi
-
-# Activate virtual env
-. .venv/bin/activate
-
-# Install Python dependencies
-python3 -m pip install -r requirements.txt
-
-# Check that ansible is working
-ansible --version
-
-# Run bootstrap playbook
-ansible-playbook bootstrap.yml
-
-# Install Homebrew
-#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"

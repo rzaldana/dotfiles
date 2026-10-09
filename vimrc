@@ -3,11 +3,27 @@ set number					" show line numbers
 set relativenumber				" show line numbers relative to current line
 set hidden
 
+" always show status line
+set laststatus=2
+
 " set foldmethod to indent
 set foldmethod=indent
 
 " open all files with a nesting level (foldlevel) higher than 100
 set foldlevel=100
+
+" LSP key mappings
+" Jump to definition
+nnoremap gd <Plug>(coc-definition)
+" Jump to type definition
+nnoremap gy <Plug>(coc-type-definition)
+" Jump to implementation
+nnoremap gi <Plug>(coc-implementation)
+" Show references
+nnoremap gr <Plug>(coc-references)
+" Show hover info
+"nnoremap K <Plug>(coc-hover)
+nnoremap K :call CocActionAsync('doHover')<CR>
 
 " tab should insert two spaces
 set expandtab
@@ -36,6 +52,11 @@ colorscheme elflord
 " use unnamed register for clipboard data
 set clipboard=unnamedplus
 
+" Run PlugInstall if there are missing plugins
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+  \| PlugInstall --sync | source $MYVIMRC
+\| endif
+
 " vim.plug configuration
 call plug#begin()
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -45,6 +66,11 @@ call plug#end()
 
 " coc-ansible configuration
 let g:coc_filetype_map = { 'yaml.ansible': 'ansible' }
+let g:coc_global_extensions = [
+      \ 'coc-pyright@1.1.414',
+      \ '@yaegassy/coc-ansible@0.15.2',
+      \ 'coc-golang@0.6.0'
+      \ ]
 
 " Use <CR> to confirm autocompletion
 inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
