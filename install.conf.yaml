@@ -22,6 +22,3 @@
     ~/.config/ranger/rc.conf: rc.conf
     ~/.vim/autoload/plug.vim: ./submodules/vim-plug/plug.vim
     ~/.vim/coc-settings.json:
-
-- shell:
-    - command: nvm install {{ node_version }} && nvm alias default {{ node_version }}
