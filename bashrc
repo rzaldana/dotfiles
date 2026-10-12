@@ -17,6 +17,18 @@ if [[ -f "${HOME}/.bash_aliases" ]]; then
     source "${HOME}/.bash_aliases"
 fi
 
+
+# Run additional bashrc scipts
+# Only execute additional .bashrc scripts if they are secure, e.g. owned by the
+# user that is starting bash and not writable by others
+if [ -d "${HOME}/.bashrc.d" ]; then
+  mapfile -t scripts <<< "$(find "${HOME}/.bashrc.d/" -type f -o -type l -perm -g-xw,o-xw -user "${USER}")"
+  for script in "${scripts[@]}"; do
+      # shellcheck disable=1090,1091
+      source "${script}"
+  done
+fi
+
 ################################################################################
 # Include local bin dirs in path 
 ################################################################################
@@ -34,6 +46,11 @@ fi
 # Homebrew 
 ################################################################################
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+################################################################################
+# Make GNU coreutils the default
+################################################################################
+export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
 
 ################################################################################
 # nvim 

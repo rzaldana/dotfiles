@@ -2,7 +2,9 @@
     link:
       relink: true
 
-- clean: ['~']
+- clean: 
+  - ~/
+  - ~/.bashrc.d
 
 - link:
     ~/.bash_aliases:

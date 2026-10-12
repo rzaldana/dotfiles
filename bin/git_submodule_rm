@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+source std.bash
+
+set -euo pipefail
+
+function main() {
+  local usage
+  read -r -d "" usage <<EOF || :
+Removes the git submodule(s) at the given path(s) from the current git repository
+
+Usage: $0 [options] [--] <submodule_path>...
+
+Options:
+  -h        show help message 
+
+Use "$0 -h" to show this help message.
+EOF
+
+  while getopts ":h" opt; do
+    case "$opt" in
+      h)
+        printf "%s\n" "$usage"
+        exit 0
+        ;;
+      ?)
+        printf "%s\n" "$0: invalid option -- $OPTARG"
+        printf "%s\n" "See '$0 -h' for usage"
+        exit 1
+        ;;
+    esac
+  done
+  shift $((OPTIND-1))
+
+  if (( $# > 0 )); then
+    for arg in "$@"; do
+      remove_submodule "$arg"
+    done
+  else
+    printf "%s\n" "$usage"
+  fi
+}
+
+
+function remove_submodule() {
+  std::check_args 1 "$@"
+  local submodule_path
+  submodule_path="${1}"
+  local git_root_dir
+  git_root_dir="$(git rev-parse --show-toplevel)"
+  echo "removing submodule $submodule_path at $git_root_dir"
+}
+
+main "$@"
