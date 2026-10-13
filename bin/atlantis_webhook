@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# 
+# Script for creating Atlantis webhooks on Bitbucket Cloud 
+
+set -euo pipefail
+source std.bash
+
+declare -a ATLANTIS_WEBHOOK_EVENTS=(
+  "pullrequest:approved"
+  "pullrequest:created"
+  "pullrequest:comment_created"
+  "pullrequest:fulfilled"
+  "repo:push"
+  "pullrequest:rejected"
+  "pullrequest:unapproved"
+  "pullrequest:updated"
+)
+declare ATLANTIS_WEBHOOK_DESCRIPTION="atlantis"
+
+
+function usage() {
+  local usage
+  read -rd "" usage <<-EOF || :
+		Creates an atlantis  webhook in the Bitbucket project with the given slug
+		
+		Usage: $(std::script_name) [options] [--] <repo_slug>...
+		
+		Options:
+		  -l        log level (valid values: off, fatal, error, warn, info, debug)
+		  -h        show help message 
+		
+		Use "$(std::script_name) -h" to show this help message.
+		EOF
+
+  printf "%s\n" "$usage"
+}
+
+# Process options
+while getopts ":hl:" opt; do
+  case "$opt" in
+    h)
+      usage
+      exit 0
+      ;;
+    l)
+      std::set_log_level "$OPTARG"
+      ;;
+    ?)
+      printf "%s\n" "$0: invalid option -- $OPTARG"
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if (( $# > 0 )); then
+  REPO_SLUG="$1"
+  WORKSPACE="cifinancial"
+
+  # Check if repo exists
+  if ! bkt repo view --repo "$REPO_SLUG" --workspace "$WORKSPACE" >/dev/null 2>&1 ; then
+    std::error "repo not found: $REPO_SLUG"
+  fi
+
+  # Check if repo already has a webhook with the description "atlantis"
+  if \
+    bkt webhook list --repo platform-network --json \
+    | jq --raw-output --monochrome-output '.webhooks[].description' \
+    | grep --quiet --extended-regexp "^${ATLANTIS_WEBHOOK_DESCRIPTION}$"; then
+    std::log WARN "webhook with description '$ATLANTIS_WEBHOOK_DESCRIPTION' already exists. Skipping creation"
+    exit 0
+  fi
+
+  # Retrieve atlantis secret
+  SECRET_DATA="$(aws secretsmanager get-secret-value --secret-id "cloud/pipeline/atlantis")"
+  WEBHOOK_SECRET="$( jq \
+    --exit-status \
+    --raw-output \
+    --monochrome-output \
+    '.SecretString | fromjson | .bitbucket.secret' \
+    <<<"$SECRET_DATA"
+  )"
+  PAYLOAD="$( echo "{}" \
+    | jq --arg description "$ATLANTIS_WEBHOOK_DESCRIPTION" '.description = $description' \
+    | jq '.url = "https://atlantis.ci.com/events"' \
+    | jq '.active = true' \
+    | jq --arg secret "$WEBHOOK_SECRET" '.secret=$secret' \
+    | jq '.events = []' \
+  )"
+  std::log debug "payload=$PAYLOAD"
+  for webhook_event in "${ATLANTIS_WEBHOOK_EVENTS[@]}"; do
+    PAYLOAD="$( jq --arg event "$webhook_event" '.events += [$event]' <<<"$PAYLOAD" )"
+  done
+  std::log debug "payload=$PAYLOAD"
+
+  if ! bkt api --method POST --input "$PAYLOAD" "/repositories/$WORKSPACE/$REPO_SLUG/hooks" >/dev/null 2>&1; then
+    std::error "Unable to create bitbucket webhook for repo: $REPO_SLUG'"
+  else
+    printf "%s\n" "SUCCESS: Created atlantis webhook for repo: $REPO_SLUG"
+  fi
+else
+  usage
+fi
