@@ -10,12 +10,12 @@ function main() {
   read -r -d "" usage <<EOF || :
 Removes the git submodule(s) at the given path(s) from the current git repository
 
-Usage: $0 [options] [--] <submodule_path>...
+Usage: $(std::script_name) [options] [--] <submodule_path>...
 
 Options:
   -h        show help message 
 
-Use "$0 -h" to show this help message.
+Use "$(std::script_name) -h" to show this help message.
 EOF
 
   std::set_log_level "warn"
