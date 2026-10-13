@@ -1,0 +1,8 @@
+[submodule "dotbot"]
+path   = dotbot
+url    = https://github.com/anishathalye/dotbot
+ignore = dirty
+
+[submodule "submodules/vim-plug"]
+path = submodules/vim-plug
+url  = https://github.com/junegunn/vim-plug.git

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-source std.bash
 
 set -euo pipefail
+
+source std.bash
 
 function main() {
   local usage
@@ -17,6 +18,7 @@ Options:
 Use "$0 -h" to show this help message.
 EOF
 
+  std::set_log_level "debug"
   while getopts ":h" opt; do
     case "$opt" in
       h)
@@ -34,6 +36,7 @@ EOF
 
   if (( $# > 0 )); then
     for arg in "$@"; do
+      std::log "info" "processing submodule $arg"
       remove_submodule "$arg"
     done
   else
@@ -43,12 +46,83 @@ EOF
 
 
 function remove_submodule() {
-  std::check_args 1 "$@"
   local submodule_path
   submodule_path="${1}"
   local git_root_dir
   git_root_dir="$(git rev-parse --show-toplevel)"
-  echo "removing submodule $submodule_path at $git_root_dir"
+  std::log "debug" "resolved git root path to $git_root_dir"
+  submodule_path_rel_to_git_root="$(realpath --relative-to="$git_root_dir" --canonicalize-existing "$submodule_path")"
+  std::log "debug" "resolved submodule path relative to git root to '$submodule_path_rel_to_git_root'"
+
+  # find .gitmodules file
+  local git_modules_file_path
+  git_modules_file_path="${git_root_dir}/.gitmodules"
+  if ! [[ -f "$git_modules_file_path" ]]; then
+    std::error "gitmodules file not found at $git_modules_file_path"
+  else
+    std::log "debug" "found gitmodules file at $git_modules_file_path"
+  fi
+
+  # find submodule in gitmodules file
+  yq \
+    --input-format ini \
+    --output-format ini \
+    --exit-status \
+    '.["submodule \"'"$submodule_path_rel_to_git_root"'\""]' \
+    "$git_modules_file_path" >/dev/null 2>&1 \
+    || std::error "submodule '$submodule_path_rel_to_git_root' not found in .gitmodules file"
+
+  # find .git/config file
+  local git_config_file_path
+  git_config_file_path="${git_root_dir}/.git/config"
+  if ! [[ -f "$git_config_file_path" ]]; then
+    std::error "git config file not found at $git_config_file_path"
+  else
+    std::log "debug" "found git config file at $git_config_file_path"
+  fi
+
+
+  # find submodule in git config file
+  yq \
+    --input-format ini \
+    --output-format ini \
+    --exit-status \
+    '.["submodule \"'"$submodule_path_rel_to_git_root"'\""]' \
+    "$git_config_file_path" >/dev/null 2>&1 \
+    || std::error "submodule '$submodule_path_rel_to_git_root' not found in .git/config file"
+
+  # delete submodule from gitmodules file
+  yq \
+    --input-format ini \
+    --output-format ini \
+    --exit-status \
+    --inplace \
+    'del(.["submodule \"'"$submodule_path_rel_to_git_root"'\""])' \
+    "$git_modules_file_path" >/dev/null
+
+  # stage changes to gitmodules file
+  git add "$git_modules_file_path"
+
+  # delete submodule form .git/config file
+  yq \
+    --input-format ini \
+    --output-format ini \
+    --exit-status \
+    --inplace \
+    'del(.["submodule \"'"$submodule_path_rel_to_git_root"'\""])' \
+    "$git_config_file_path" >/dev/null
+
+  # git rm submodule dir
+  git rm --cached "$submodule_path"
+  
+  # rm submodule directory from .git directory
+  rm -rf "$git_root_dir/.git/modules/$submodule_path_rel_to_git_root"
+
+  # commit changes
+  git commit -m "remove submodule $submodule_path_rel_to_git_root"
+
+  # remove submodule dir
+  rm -rf "$git_root_dir/$submodule_path_rel_to_git_root"
 }
 
 main "$@"
