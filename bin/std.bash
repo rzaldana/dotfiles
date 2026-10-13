@@ -17,7 +17,7 @@ declare __STD_LOG_VERBOSITY="3"
 function std::error() {
   local error_message
   error_message="$1"
-  printf "%s\n"  "ERROR: $error_message" >&2
+  printf "%s: %s\n"  "$(std::script_name)" "ERROR: $error_message" >&2
   return 1
 }
 
