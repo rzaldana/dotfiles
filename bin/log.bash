@@ -5,6 +5,16 @@
 declare -gA __LOG_LEVELS=([OFF]=0 [FATAL]=1 [ERROR]=2 [WARN]=3 [INFO]=4 [DEBUG]=5)
 declare -g __LOG_VERBOSITY="3"
 
+# Color used to print each log level's label. OFF is absent since it is never
+# printed as a message level.
+declare -gA __LOG_LEVEL_COLORS=(
+  [FATAL]=MAGENTA
+  [ERROR]=RED
+  [WARN]=YELLOW
+  [INFO]=BLUE
+  [DEBUG]=CYAN
+)
+
 ################################################################################
 # Prints a log message to stdout if the requested level is allowed by the
 # current verbosity. Verbosity for this function is set with the 
@@ -35,7 +45,18 @@ function log::log() {
   local log_verbosity
   log_verbosity="${__LOG_LEVELS[$log_level_all_caps]}"
   if (( log_verbosity  <= __LOG_VERBOSITY )); then
-    printf "%s %-5s %s\n" "$(std::script_name)" "${log_level_all_caps}" "$message"
+    # Print the level word in its assigned color. The level is padded to a
+    # fixed-width field for alignment, but the padding is printed separately
+    # with "%*s" (which takes the field width as an argument) because the color
+    # escape codes would otherwise be counted by printf's native "%-Ns"
+    # padding and throw the alignment off.
+    local level_field_width
+    level_field_width=5
+    local pad_len
+    pad_len=$(( level_field_width - ${#log_level_all_caps} ))
+    printf "%s " "$(std::script_name)"
+    std::color_print "${__LOG_LEVEL_COLORS[$log_level_all_caps]}" "$log_level_all_caps"
+    printf "%*s %s\n" "$pad_len" "" "$message"
   fi
 }
 

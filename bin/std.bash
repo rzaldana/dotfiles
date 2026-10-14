@@ -18,7 +18,11 @@ set -euo pipefail
 function std::error() {
   local error_message
   error_message="$1"
-  printf "%s: %s\n"  "$(std::script_name)" "ERROR: $error_message" >&2
+  # Only the word "ERROR" is colorized (red); the color function emits no color
+  # codes when output is not a terminal.
+  printf "%s: " "$(std::script_name)" >&2
+  std::color_red "ERROR" >&2
+  printf ": %s\n" "$error_message" >&2
   return 1
 }
 
@@ -35,7 +39,11 @@ function std::error() {
 function std::success() {
   local message
   message="$1"
-  printf "%s: %s\n"  "$(std::script_name)" "SUCCESS: $message"
+  # Only the word "SUCCESS" is colorized (green); the color function emits no
+  # color codes when output is not a terminal.
+  printf "%s: " "$(std::script_name)"
+  std::color_green "SUCCESS"
+  printf ": %s\n" "$message"
 }
 
 ################################################################################
@@ -135,22 +143,23 @@ function std::enable_error_trace() {
   trap 'std::_on_error "$?" "$LINENO" "$BASH_COMMAND"' ERR
 }
 
-# Color escape codes keyed by color name. Keys are all-caps to match the
-# convention used by __LOG_LEVELS in log.bash. Declared read-only so they
-# cannot be clobbered. "BLANK" resets to the default terminal color; "PURPLE"
-# is an alias of "MAGENTA".
-declare -grA __STD_COLORS=(
-  [BLACK]='\e[0;30m'
-  [RED]='\e[0;31m'
-  [GREEN]='\e[0;32m'
-  [YELLOW]='\e[0;33m'
-  [BLUE]='\e[0;34m'
-  [MAGENTA]='\e[0;35m'
-  [PURPLE]='\e[0;35m'
-  [CYAN]='\e[0;36m'
-  [WHITE]='\e[0;37m'
-  [BLANK]='\e[0m'
-)
+# Color escape codes keyed by color name. "BLANK" resets to the default
+# terminal color; "PURPLE" is an alias of "MAGENTA". Guarded so re-sourcing
+# this library does not re-declare the read-only variable (which would error).
+if ! declare -p __STD_COLORS >/dev/null 2>&1; then
+  declare -grA __STD_COLORS=(
+    [BLACK]='\e[0;30m'
+    [RED]='\e[0;31m'
+    [GREEN]='\e[0;32m'
+    [YELLOW]='\e[0;33m'
+    [BLUE]='\e[0;34m'
+    [MAGENTA]='\e[0;35m'
+    [PURPLE]='\e[0;35m'
+    [CYAN]='\e[0;36m'
+    [WHITE]='\e[0;37m'
+    [BLANK]='\e[0m'
+  )
+fi
 
 ################################################################################
 # Prints text in the named color, followed by a reset so color does not bleed

@@ -8,7 +8,6 @@ source log.bash
 source opts.bash
 
 export PS4='+ ${BASH_SOURCE}:${LINENO} '
-set -x
 
 declare -a ATLANTIS_WEBHOOK_EVENTS=(
   "pullrequest:approved"

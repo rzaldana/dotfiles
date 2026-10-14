@@ -37,12 +37,31 @@ this project's `bin/std.bash`.
 - Internal/global library state uses an uppercase, double-underscore prefix,
   e.g. `__STD_LOG_VERBOSITY`.
 - Associative arrays require bash 4+; `declare -A`.
+- Keys of lookup/enum associative arrays are ALL-CAPS (e.g. `__LOG_LEVELS`,
+  `__STD_COLORS` use keys like `ERROR`, `RED`). When a function accepts such a
+  key as input, normalize the argument with `${arg^^}` before lookup so the
+  input is case-insensitive, and report the user's original casing in any error
+  message.
 - To test whether an associative-array key exists, use `[[ -v arr[$key] ]]`
   (bash 4.3+). Do NOT quote the subscript: `[[ -v arr[$key] ]]`, not
   `[[ -v "arr[$key]" ]]`. A missing key expands to empty silently, so validate
   before use.
 - When indexing an array with a variable key, include the `$`:
   `"${arr[$key]}"` — a bare `arr[key]` is treated as the literal key "key".
+- Guard every read-only global (`declare -r` / `declare -gr` / `-grA`) so a
+  library can be sourced multiple times idempotently. Re-declaring an existing
+  read-only variable errors (and aborts under `set -e`). Only declare when it
+  is not already set:
+  ```bash
+  if ! declare -p __STD_COLORS >/dev/null 2>&1; then
+    declare -grA __STD_COLORS=( [RED]='\e[0;31m' ... )
+  fi
+  ```
+  Use `declare -p NAME >/dev/null 2>&1` for the existence test — it works for
+  scalars, indexed arrays, AND associative arrays. Do NOT use `[[ -v NAME ]]`
+  for arrays: on a bare array name it tests index 0 and gives a false negative
+  for associative arrays. Non-readonly globals do not need the guard (they are
+  simply reassigned on re-source).
 
 ## Namerefs (`declare -n` / `local -n`, bash 4.3+)
 - Prefer namerefs for "set a variable whose name is in another variable".
@@ -88,6 +107,8 @@ this project's `bin/std.bash`.
 ## External CLI dependencies
 - Keep the core of a shell library in pure bash builtins — no hard dependency
   on external CLIs (bootstrap/portability/startup-cost reasons).
+- Prefer shell builtins first, then GNU coreutils, over third-party binaries.
+  Reach for an external tool only when a builtin / coreutils cannot do the job.
 - Treat tools like `logger`, `jq` as OPTIONAL: feature-detect with
   `command -v tool >/dev/null 2>&1` and degrade gracefully to a builtin
   fallback.
@@ -111,9 +132,10 @@ this project's `bin/std.bash`.
   and `.opts.[$flag]` are BOTH valid and equivalent (verified on jq 1.7.1).
   `.foo` is itself shorthand for `.["foo"]`.
 
-## Portability notes (macOS)
-- Default `/bin/bash` on macOS is 3.2 — associative arrays, `${v^^}`,
-  `[[ -v arr[k] ]]`, and namerefs need bash 4+/4.3+. Use
-  `#!/usr/bin/env bash` and assume a modern bash is on PATH.
-- `fold -s -w N` / `fmt -w N` for wrapping text (BSD variants on macOS; `-s`
-  and `-w` are portable).
+## Target environment
+- Write for bash 5+ ONLY. Freely use associative arrays, `${v^^}`/`${v,,}`,
+  `[[ -v arr[k] ]]`, namerefs (`declare -n`), and other modern bash features
+  without version guards or fallbacks for older bash. Use
+  `#!/usr/bin/env bash`.
+- Assume GNU coreutils are available (not BSD/macOS variants). Use GNU options
+  freely, e.g. `fold -s -w N` / `fmt -w N` for wrapping text.
