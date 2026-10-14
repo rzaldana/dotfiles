@@ -19,6 +19,22 @@ function std::error() {
   return 1
 }
 
+
+################################################################################
+# Print a success message to STDOUT
+# Arguments:
+#   message
+# Outputs:
+#   Writes success message to stdout
+# Returns:
+#   always returns 0 
+################################################################################
+function std::success() {
+  local message
+  message="$1"
+  printf "%s: %s\n"  "$(std::script_name)" "SUCCESS: $message"
+}
+
 ################################################################################
 # Returns the name of the script that's currently running
 # Arguments:

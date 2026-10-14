@@ -42,7 +42,7 @@ if \
   bkt webhook list --repo platform-network --json \
   | jq --raw-output --monochrome-output '.webhooks[].description' \
   | grep --quiet --extended-regexp "^${ATLANTIS_WEBHOOK_DESCRIPTION}$"; then
-  log::log WARN "webhook with description '$ATLANTIS_WEBHOOK_DESCRIPTION' already exists. Skipping creation"
+  log::warn "webhook with description '$ATLANTIS_WEBHOOK_DESCRIPTION' already exists. Skipping creation"
   exit 0
 fi
 
@@ -62,14 +62,14 @@ PAYLOAD="$( echo "{}" \
   | jq --arg secret "$WEBHOOK_SECRET" '.secret=$secret' \
   | jq '.events = []' \
 )"
-log::log debug "payload=$PAYLOAD"
+log::debug "payload=$PAYLOAD"
 for webhook_event in "${ATLANTIS_WEBHOOK_EVENTS[@]}"; do
   PAYLOAD="$( jq --arg event "$webhook_event" '.events += [$event]' <<<"$PAYLOAD" )"
 done
-log::log debug "payload=$PAYLOAD"
+log::debug "payload=$PAYLOAD"
 
 if ! bkt api --method POST --input "$PAYLOAD" "/repositories/$WORKSPACE/$REPO_SLUG/hooks" >/dev/null 2>&1; then
   std::error "Unable to create bitbucket webhook for repo: $REPO_SLUG'"
 else
-  printf "%s\n" "SUCCESS: Created atlantis webhook for repo: $REPO_SLUG"
+  std::success "Created atlantis webhook for repo: $REPO_SLUG"
 fi

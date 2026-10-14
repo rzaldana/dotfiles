@@ -320,7 +320,6 @@ function opts::parse() {
     __arg_var_name="$1"
     shift 1
   done
-
 }
 
 

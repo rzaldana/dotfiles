@@ -23,10 +23,13 @@ function log::log() {
   local message
   message="$2"
 
-  # Check that requested level exists
+  # Check that the requested level exists and is a usable message level. OFF is
+  # a verbosity sentinel ("log nothing"), not a level a message can be logged
+  # at, so it is rejected here.
   local log_level_all_caps
   log_level_all_caps="${log_level^^}"
-  if ! [[ -v __LOG_LEVELS[${log_level_all_caps}] ]]; then
+  if ! [[ -v __LOG_LEVELS[${log_level_all_caps}] ]] \
+    || [[ "$log_level_all_caps" == "OFF" ]]; then
     std::error "invalid log level: $log_level"
   fi
   local log_verbosity
@@ -57,4 +60,79 @@ function log::set_level() {
   local verbosity
   verbosity="${__LOG_LEVELS[$log_level_all_caps]}"
   __LOG_VERBOSITY="$verbosity"
+}
+
+################################################################################
+# Logs a message at the FATAL level. Convenience wrapper around log::log.
+# Arguments:
+#   message to log
+# Outputs:
+#   log message on stdout (if FATAL is allowed by the current verbosity)
+# Returns:
+#   0 on success
+################################################################################
+function log::fatal() {
+  local message
+  message="$1"
+  log::log "FATAL" "$message"
+}
+
+################################################################################
+# Logs a message at the ERROR level. Convenience wrapper around log::log.
+# Arguments:
+#   message to log
+# Outputs:
+#   log message on stdout (if ERROR is allowed by the current verbosity)
+# Returns:
+#   0 on success
+################################################################################
+function log::error() {
+  local message
+  message="$1"
+  log::log "ERROR" "$message"
+}
+
+################################################################################
+# Logs a message at the WARN level. Convenience wrapper around log::log.
+# Arguments:
+#   message to log
+# Outputs:
+#   log message on stdout (if WARN is allowed by the current verbosity)
+# Returns:
+#   0 on success
+################################################################################
+function log::warn() {
+  local message
+  message="$1"
+  log::log "WARN" "$message"
+}
+
+################################################################################
+# Logs a message at the INFO level. Convenience wrapper around log::log.
+# Arguments:
+#   message to log
+# Outputs:
+#   log message on stdout (if INFO is allowed by the current verbosity)
+# Returns:
+#   0 on success
+################################################################################
+function log::info() {
+  local message
+  message="$1"
+  log::log "INFO" "$message"
+}
+
+################################################################################
+# Logs a message at the DEBUG level. Convenience wrapper around log::log.
+# Arguments:
+#   message to log
+# Outputs:
+#   log message on stdout (if DEBUG is allowed by the current verbosity)
+# Returns:
+#   0 on success
+################################################################################
+function log::debug() {
+  local message
+  message="$1"
+  log::log "DEBUG" "$message"
 }
