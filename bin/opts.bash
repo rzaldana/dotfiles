@@ -2,24 +2,34 @@
 #
 # Library for parsing cli options
 
+source std.bash
 
-function opts::init_spec() {
-  printf "%s" "{}" \
-    | jq '.opts={}' \
-    | jq '.description=""' \
-    | jq '.name=""'
+declare -g __OPTS_SPEC
+
+function __opts::init_spec_if_not_set() {
+  if ! [[ -v __OPTS_SPEC ]]; then
+    __OPTS_SPEC="$(
+      printf "%s" "{}" \
+        | jq '.opts={}' \
+        | jq '.description=""' \
+        | jq '.name=""' \
+        | jq '.required_args=[]'
+    )"
+  fi
 }
 
 function opts::add_name() {
   local name 
   name="$1"
-  jq --arg name "$name" '.name=$name'
+  __opts::init_spec_if_not_set
+  __OPTS_SPEC="$(jq --arg name "$name" '.name=$name' <<<"$__OPTS_SPEC")"
 }
 
 function opts::add_description() {
   local description
   description="$1"
-  jq --arg description "$description" '.description=$description'
+  __opts::init_spec_if_not_set
+  __OPTS_SPEC="$(jq --arg description "$description" '.description=$description' <<<"$__OPTS_SPEC")"
 }
 
 function opts::add_opt() {
@@ -31,6 +41,7 @@ function opts::add_opt() {
   variable="$2"
   description="$3"
   with_arg='false'
+  __opts::init_spec_if_not_set
 
   if [[ "$flag" == "h" ]]; then
     echo "flag is reserved for help message: -h" >&2
@@ -44,7 +55,23 @@ function opts::add_opt() {
     | jq --argjson with_arg "$with_arg" '.with_arg=$with_arg'
   )"
 
-  jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec'
+  __OPTS_SPEC="$(jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec' <<<"$__OPTS_SPEC")"
+}
+
+function opts::add_required_arg() {
+  local arg_name
+  local variable
+  arg_name="$1"
+  variable="$2"
+  __opts::init_spec_if_not_set
+
+  local arg_spec
+  arg_spec="$( echo "{}" \
+    | jq --arg name "${arg_name^^}" '.name=$name' \
+    | jq --arg variable "$variable" '.variable=$variable'
+  )"
+
+  __OPTS_SPEC="$(jq --argjson arg_spec "$arg_spec" '.required_args+=[$arg_spec]' <<<"$__OPTS_SPEC")"
 }
 
 
@@ -53,6 +80,7 @@ function __opts::add_help_opt() {
   variable="__OPTS_HELP"
   description="show help message"
   with_arg='false'
+  __opts::init_spec_if_not_set
   
   local opt_spec
   opt_spec="$(echo "{}" \
@@ -61,36 +89,40 @@ function __opts::add_help_opt() {
     | jq --argjson with_arg "$with_arg" '.with_arg=$with_arg'
   )"
 
-  jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec'
+  __OPTS_SPEC="$(jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec' <<<"$__OPTS_SPEC")"
 }
 
 
 function opts::add_opt_with_arg() {
-  local flag 
+  local flag
+  local arg_name
   local variable 
   local description
   local with_arg
   flag="$1"
-  variable="$2"
-  description="$3"
+  arg_name="${2^^}" # make argname uppercase
+  variable="$3"
+  description="$4"
   with_arg='true'
+  __opts::init_spec_if_not_set
   
   local opt_spec
   opt_spec="$(echo "{}" \
     | jq --arg variable "$variable" '.variable=$variable' \
     | jq --arg description "$description" '.description=$description' \
-    | jq --argjson with_arg "$with_arg" '.with_arg=$with_arg'
+    | jq --argjson with_arg "$with_arg" '.with_arg=$with_arg' \
+    | jq --arg arg_name "$arg_name" '.arg_name=$arg_name' \
   )"
 
-  jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec'
+  __OPTS_SPEC="$(jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec' <<<"$__OPTS_SPEC")"
 }
 
 function opts::parse() {
   local spec
-  read -rd '' spec || true 
 
   # Add -h option for help
-  spec="$( __opts::add_help_opt <<<"$spec" )"
+  __opts::add_help_opt
+  spec="${__OPTS_SPEC}"
 
   local -a option_flags
   mapfile -t option_flags < <(jq --raw-output --monochrome-output '.opts | keys[]' <<<"$spec")
@@ -98,26 +130,39 @@ function opts::parse() {
   local -a folded_description
   mapfile -t folded_description < <(jq --raw-output --monochrome-output '.description' <<<"$spec" | fold --spaces)
 
+  local -a required_args
+  mapfile -t required_args < <(jq --compact-output --raw-output --monochrome-output '.required_args[]' <<<"$spec")
 
+
+  # Create usage string
   local command_name
   command_name="$(jq -rM '.name' <<<"$spec")"
   local usage
   usage="Usage: $command_name [options]"
+  for required_arg in "${required_args[@]}"; do
+    usage="$usage $(jq --raw-output --monochrome-output '.name' <<<"$required_arg")"
+  done
 
   # Generate optstring and help message
   local optstring=':'
   local with_arg
   local -a options_help
   local opt_desc
-  local opt_var
 
   for flag in "${option_flags[@]}"; do
     with_arg="$(jq -rM --arg flag "$flag" '.opts.[$flag].with_arg' <<<"$spec")"
     opt_desc="$(jq -rM --arg flag "$flag" '.opts.[$flag].description' <<<"$spec")"
-    opt_var="$(jq -rM --arg flag "$flag" '.opts.[$flag].variable' <<<"$spec")"
-    if [[ "$with_arg" == "true" ]]; then
+    local arg_name
+    if arg_name="$(jq \
+      --arg flag "$flag" \
+      --exit-status \
+      --raw-output \
+      --monochrome-output \
+      '.opts[$flag].arg_name' \
+      <<<"$spec"
+      )"; then
       optstring="${optstring}${flag}:"
-      options_help+=( "$(printf "  %-20s%s" "-$flag $opt_var" "$opt_desc")"  )
+      options_help+=( "$(printf "  %-20s%s" "-$flag $arg_name" "$opt_desc")"  )
     else
       optstring="${optstring}${flag}"
       options_help+=( "$(printf "  %-20s%s" "-$flag" "$opt_desc")"  )
@@ -147,7 +192,7 @@ function opts::parse() {
     done
   }
 
-  # process command line arguments
+  # process options
   while getopts "$optstring" opt; do
     if [[ "$opt" == '?' ]]; then
       printf "%s\n" "$0: invalid option:  $OPTARG"
@@ -161,7 +206,7 @@ function opts::parse() {
 
     if [[ "$opt" == 'h' ]]; then
       usage
-      return 0
+      exit 0
     fi
 
     unset -n __optvar
@@ -179,6 +224,24 @@ function opts::parse() {
   
   # remove all processed args from list of args
   shift "$((OPTIND-1))" 
+
+  # process args
+  local arg_name
+  for required_arg in "${required_args[@]}"; do
+    # get arg name
+    arg_name="$(jq --raw-output --monochrome-output '.name' <<<"$required_arg")"
+    if ! [[ -v 1 ]]; then
+      std::error "required arg not set: $arg_name"
+    fi
+      
+    unset -n __arg_var_name
+    local -n __arg_var_name
+    __arg_var_name="$(jq --raw-output --monochrome-output '.variable' <<<"$required_arg")"
+    #shellcheck disable=SC2034
+    __arg_var_name="$1"
+    shift 1
+  done
+
 }
 
 
