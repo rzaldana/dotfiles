@@ -18,6 +18,16 @@ function __opts::init_spec_if_not_set() {
   fi
 }
 
+################################################################################
+# Sets the command name shown in the generated usage/help message. Initializes
+# the spec if it has not been initialized yet.
+# Arguments:
+#   name - the command name to display in the usage string
+# Outputs:
+#   None
+# Returns:
+#   0 on success
+################################################################################
 function opts::add_name() {
   local name 
   name="$1"
@@ -25,6 +35,16 @@ function opts::add_name() {
   __OPTS_SPEC="$(jq --arg name "$name" '.name=$name' <<<"$__OPTS_SPEC")"
 }
 
+################################################################################
+# Sets the top-level description shown in the generated usage/help message.
+# Initializes the spec if it has not been initialized yet.
+# Arguments:
+#   description - the description text to display in the help message
+# Outputs:
+#   None
+# Returns:
+#   0 on success
+################################################################################
 function opts::add_description() {
   local description
   description="$1"
@@ -32,6 +52,20 @@ function opts::add_description() {
   __OPTS_SPEC="$(jq --arg description "$description" '.description=$description' <<<"$__OPTS_SPEC")"
 }
 
+################################################################################
+# Adds a flag option (one that takes no argument) to the spec. When the flag is
+# present on the command line, its associated variable is set to "0".
+# Initializes the spec if it has not been initialized yet. The flag "h" is
+# reserved for the auto-generated help option and is rejected.
+# Arguments:
+#   flag        - the single-character option letter (must not be "h")
+#   variable    - name of the variable to set when the flag is present
+#   description - help text describing the option
+# Outputs:
+#   Writes an error to stderr if the flag is the reserved "h"
+# Returns:
+#   1 if the flag is the reserved "h", 0 otherwise
+################################################################################
 function opts::add_opt() {
   local flag 
   local variable 
@@ -58,6 +92,19 @@ function opts::add_opt() {
   __OPTS_SPEC="$(jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec' <<<"$__OPTS_SPEC")"
 }
 
+################################################################################
+# Adds a required positional argument to the spec. Required args are appended in
+# order and appear in the usage string after the options. The argument name is
+# upper-cased for display. Initializes the spec if it has not been initialized
+# yet.
+# Arguments:
+#   arg_name - the positional argument name (upper-cased for display)
+#   variable - name of the variable to set from the positional argument's value
+# Outputs:
+#   None
+# Returns:
+#   0 on success
+################################################################################
 function opts::add_required_arg() {
   local arg_name
   local variable
@@ -93,6 +140,21 @@ function __opts::add_help_opt() {
 }
 
 
+################################################################################
+# Adds an option that takes an argument to the spec. When the option is present
+# on the command line, its associated variable is set to the option's argument
+# (OPTARG). The argument name is upper-cased for display in the help message.
+# Initializes the spec if it has not been initialized yet.
+# Arguments:
+#   flag        - the single-character option letter
+#   arg_name    - the option-argument name (upper-cased for display)
+#   variable    - name of the variable to set from the option's argument
+#   description - help text describing the option
+# Outputs:
+#   None
+# Returns:
+#   0 on success
+################################################################################
 function opts::add_opt_with_arg() {
   local flag
   local arg_name
@@ -117,6 +179,23 @@ function opts::add_opt_with_arg() {
   __OPTS_SPEC="$(jq --arg flag "$flag" --argjson opt_spec "$opt_spec" '.opts.[$flag]=$opt_spec' <<<"$__OPTS_SPEC")"
 }
 
+################################################################################
+# Parses command-line arguments according to the spec built by the opts::add_*
+# functions. Reads the spec from the global __OPTS_SPEC, generates an optstring
+# and help message, auto-adds a "-h" help option.
+#
+# Flag options set their variable to "0"; options with arguments set their
+# variable to the argument value; required positional args set their variable
+# to the corresponding positional value.
+# Arguments:
+#   the command-line arguments to parse (typically "$@")
+# Outputs:
+#   On "-h", prints the help message to stdout and exits 0.
+#   On invalid option or missing option-argument, prints a message.
+# Returns:
+#   1 on an invalid option or a missing option-argument; 0 otherwise.
+#   Exits 0 directly when "-h" is given.
+################################################################################
 function opts::parse() {
   local spec
 
