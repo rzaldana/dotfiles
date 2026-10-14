@@ -1,0 +1,2 @@
+fix opts.bash so it works with set -euo pipefail
+implement positional args for opts.bash
